@@ -5,24 +5,23 @@ import groovy.sql.GroovyRowResult
 import groovy.sql.Sql
 
 class CreditCardsFinder {
-
     Sql sql
+    ConfigObject queries
 
     /**
      * runs once during object creation
      */
     CreditCardsFinder() {
-        ConfigObject config = Helper.appConfig
-
-        File dbFile = Helper.getResource(config.dbFile)
+        File dbFile = Helper.getResource(Helper.appConfig.dbFile)
         if (!dbFile.exists()) {
             throw new Exception('DB SQLite file does not exists: ' + dbFile.absolutePath)
         }
         sql = Sql.newInstance('jdbc:sqlite:' + dbFile.absolutePath, 'org.sqlite.JDBC')
+        queries = Helper.getConfigObject('queries.sql')
     }
 
     List<GroovyRowResult> findAllCards() {
-        sql.rows("select * from CreditCards")
+        sql.rows(queries.creditCards.selectAll)
     }
 
     List<GroovyRowResult> findByExpiration(int year, int month) {
